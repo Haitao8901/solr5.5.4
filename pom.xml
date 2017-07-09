@@ -6,7 +6,7 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
 	<properties>
-		<org.apache.poi.version>3.11</org.apache.poi.version>
+		<org.apache.poi.version>3.15</org.apache.poi.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -20,8 +20,8 @@
 			<artifactId>poi</artifactId>
 			<version>${org.apache.poi.version}</version>
 			<exclusions>
-			    <exclusion>
-			        <groupId>commons-codec</groupId>
+				<exclusion>
+					<groupId>commons-codec</groupId>
 					<artifactId>commons-codec</artifactId>
 				</exclusion>
 			</exclusions>
@@ -31,8 +31,8 @@
 			<artifactId>poi-ooxml</artifactId>
 			<version>${org.apache.poi.version}</version>
 			<exclusions>
-			    <exclusion>
-			        <groupId>stax</groupId>
+				<exclusion>
+					<groupId>stax</groupId>
 					<artifactId>stax-api</artifactId>
 				</exclusion>
 			</exclusions>
@@ -59,6 +59,7 @@
 				<version>3.0.0</version>
 				<configuration>
 					<warSourceDirectory>WebContent</warSourceDirectory>
+					<warName>solr</warName>
 				</configuration>
 			</plugin>
 		</plugins>
