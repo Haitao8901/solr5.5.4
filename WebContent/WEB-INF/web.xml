@@ -19,11 +19,11 @@
   <env-entry>
     <env-entry-name>solr/home</env-entry-name>
     <env-entry-type>java.lang.String</env-entry-type>
-    <env-entry-value>${cyberobject.home}/cyberSolr/solrHome</env-entry-value>
+    <env-entry-value>${catalina.home}/cyberobject/cyberSolr/SolrHome</env-entry-value>
   </env-entry>
   <context-param>
     <param-name>configPath</param-name>
-    <param-value>${cyberobject.home}/cyberSolr/SolrConfig</param-value>
+    <param-value>${catalina.home}/cyberobject/cyberSolr/SolrConfig</param-value>
   </context-param>
   <filter>
     <filter-name>SolrRequestFilter</filter-name>
