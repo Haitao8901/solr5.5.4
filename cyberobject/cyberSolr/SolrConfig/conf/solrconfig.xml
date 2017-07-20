@@ -778,7 +778,7 @@
     <lst name="defaults">
       <str name="echoParams">explicit</str>
       <int name="rows">50</int>
-      <str name="df">_text_</str>
+      <str name="df">content</str>
     </lst>
     <!-- In addition to defaults, "appends" params can be specified
          to identify values which should be appended to the list of
@@ -874,7 +874,8 @@
     <lst name="defaults">
       <str name="lowernames">true</str>
       <str name="fmap.meta">ignored_</str>
-      <str name="fmap.content">_text_</str>
+      <str name="fmap.content">content</str>
+      <str name="fmap.strcontent">filecontent</str>
     </lst>
   </requestHandler>
 
