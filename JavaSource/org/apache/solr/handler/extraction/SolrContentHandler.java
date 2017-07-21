@@ -16,6 +16,7 @@
  */
 package org.apache.solr.handler.extraction;
 
+import java.io.File;
 import java.lang.invoke.MethodHandles;
 import java.text.DateFormat;
 import java.util.ArrayDeque;
@@ -26,6 +27,7 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -180,20 +182,36 @@ public class SolrContentHandler extends DefaultHandler implements ExtractingPara
         	contentStr = contentStr.replace(totalString, "");
         }
       }
-    addField(strcontentFieldName, contentStr, null);
+//    addField(strcontentFieldName, contentStr, null);
     
-    StringBuffer rexSpecialContent = new StringBuffer();
     if(contentStr.indexOf("<mxGraphModel") >= 0){
-    	String regs = "value=(\"[^\"]+\")";
+    	String regs = "id=\"([^\"]+)\"[^>]+value=(\"[^\"]+\")";
     	Pattern pattern = Pattern.compile(regs);
     	Matcher matcher = pattern.matcher(contentStr);
     	while(matcher.find()){
-    		rexSpecialContent.append(" ").append(matcher.group(1)).append(" ").append("\n");
+    		SolrInputDocument doc = new SolrInputDocument();
+    		String id = matcher.group(1);
+    		String content = " " + matcher.group(2) + " \n";
+    		
+    		doc.addField("debugid", params.get(LITERALS_PREFIX + "filepath") + "#s1.89-o" + id);
+    		doc.addField("id", params.get(LITERALS_PREFIX + "id") + "|||" + id);
+    		doc.addField("org", params.get(LITERALS_PREFIX + "org"));
+    		doc.addField("app", params.get(LITERALS_PREFIX + "app"));
+    		doc.addField("filepath", params.get(LITERALS_PREFIX + "filepath") + File.separator + "detail_text_info" + id);
+    		doc.addField("filename", params.get(LITERALS_PREFIX + "filename"));
+    		doc.addField("detailcontent", content);
+    		doc.addField("content", content);
+    		
+    		document.addChildDocument(doc);
     	}
-    	addField(contentFieldName, rexSpecialContent.toString(), null);
+    	//set content to empty, because all it's content has been moved to child document.
+    	addField(contentFieldName, "", null);
     }else{
         addField(contentFieldName, contentStr.toString(), null);
     }
+    //set debugid and detailcontent to empty
+    document.addField("debugid", "");
+    document.addField("detailcontent", "");
   }
 
   /**
