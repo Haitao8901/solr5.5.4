@@ -199,9 +199,13 @@ public class SolrContentHandler extends DefaultHandler implements ExtractingPara
     		doc.addField("app", params.get(LITERALS_PREFIX + "app"));
     		doc.addField("filepath", params.get(LITERALS_PREFIX + "filepath") + File.separator + "detail_text_info" + id);
     		doc.addField("filename", params.get(LITERALS_PREFIX + "filename"));
-    		doc.addField("detailcontent", content);
-    		doc.addField("content", content);
     		
+    		//remove span tag
+    		content = content.replace("&lt;span&gt;", "").replace("&lt;/span&gt;", "").replace("&amp;", "&");
+    		doc.addField("detailcontent", content);//detail used to show in gui
+    		
+    		content = content.replace("&lt;", "<").replace("&gt;", ">");//content used to search
+    		doc.addField("content", content);
     		document.addChildDocument(doc);
     	}
     	//set content to empty, because all it's content has been moved to child document.

@@ -49,13 +49,11 @@
   <fieldType name="cyber_text" class="solr.TextField" multiValued="true" positionIncrementGap="100">
     <analyzer type="index">
       <tokenizer class="solr.MyTokenizerFactory"/>
-      <charFilter class="solr.HTMLStripCharFilterFactory"/>
       <filter class="solr.LowerCaseFilterFactory"/>
-      <charFilter class="solr.HTMLStripCharFilterFactory"/>
+      <!--<charFilter class="solr.HTMLStripCharFilterFactory"/>-->
     </analyzer>
     <analyzer type="query">
       <tokenizer class="solr.KeywordTokenizerFactory"/>
-      <filter class="solr.StopFilterFactory" words="stopwords.txt" ignoreCase="true"/>
       <filter class="solr.LowerCaseFilterFactory"/>
     </analyzer>
   </fieldType>
