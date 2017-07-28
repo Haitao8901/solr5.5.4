@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema name="myschema" version="1.6">
-  <uniqueKey>id</uniqueKey>
+  	<uniqueKey>id</uniqueKey>
 	<fieldType name="string" class="solr.StrField" sortMissingLast="true" />
 	<fieldType name="strings" class="solr.StrField" sortMissingLast="true" multiValued="true"/>
 	<fieldType name="boolean" class="solr.BoolField" sortMissingLast="true"/>
