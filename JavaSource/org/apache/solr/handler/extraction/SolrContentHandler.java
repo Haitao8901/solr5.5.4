@@ -17,6 +17,8 @@
 package org.apache.solr.handler.extraction;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
 import java.text.DateFormat;
 import java.util.ArrayDeque;
@@ -33,6 +35,13 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.poi.EncryptedDocumentException;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.params.SolrParams;
 import org.apache.solr.common.util.DateUtil;
@@ -149,6 +158,71 @@ public class SolrContentHandler extends DefaultHandler implements ExtractingPara
     }
     return document;
   }
+  
+  public SolrInputDocument newDocument(InputStream stream) throws Exception {
+	    //handle the literals from the params. NOTE: This MUST be called before the others in order for literals to override other values
+	    addLiterals();
+
+		Workbook wb = WorkbookFactory.create(stream);
+		int i = wb.getNumberOfSheets() -1;
+		while(i >= 0){
+			String sheetName = wb.getSheetName(i);
+			Sheet sheet = wb.getSheetAt(i);
+			int rowNum = sheet.getLastRowNum() + 1;
+			for(int j =0; j < rowNum; j++){
+				Row row = sheet.getRow(j);
+				for(int k =0; k <row.getLastCellNum(); k++){
+					Cell cell = row.getCell(k);
+					String value = null;
+					if(cell == null){
+						value = "";
+					}else if(cell.getCellType() == cell.CELL_TYPE_NUMERIC){
+						value = String.valueOf(cell.getNumericCellValue());
+					}else if(cell.getCellType() == cell.CELL_TYPE_FORMULA){
+						value = cell.getCellFormula();
+					}else{
+						try{
+							value = cell.getStringCellValue();
+						}catch(NumberFormatException e){
+							if(e.getMessage().equalsIgnoreCase("For input string: \"\"")){
+								value = "";
+							}else{
+								e.printStackTrace();
+							}
+						}
+					}
+					
+					if(value != null && !"".equals(value)) {
+						SolrInputDocument doc = new SolrInputDocument();
+						//i is sheetNum
+						//j is rowNum
+						//k is columnNum
+						String id = i + "-" + j + "-" + k;
+						
+						doc.addField("debugid", params.get(LITERALS_PREFIX + "filepath") + "|||" + sheetName + "-" + id);
+						doc.addField("id", params.get(LITERALS_PREFIX + "id") + "|||" + id);
+						doc.addField("org", params.get(LITERALS_PREFIX + "org"));
+						doc.addField("app", params.get(LITERALS_PREFIX + "app"));
+						doc.addField("filepath", params.get(LITERALS_PREFIX + "filepath") + File.separator + "detail_text_info" + id);
+						doc.addField("filename", params.get(LITERALS_PREFIX + "filename"));
+						
+						doc.addField("detailcontent", value);//detail used to show in gui
+						doc.addField("content", value);
+						document.addChildDocument(doc);
+						System.out.println(sheetName + ":" + i + "-" + j + "-" + k + ">>" + value);
+					}
+				}
+			}
+			i--;
+		}
+	    addField(contentFieldName, "", null);
+	    document.addField("debugid", "");
+	    document.addField("detailcontent", "");
+	    if (log.isDebugEnabled()) {
+	      log.debug("Doc: {}", document);
+	    }
+	    return document;
+	  }
 
   /**
    * Add the per field captured content to the Solr Document.  Default implementation uses the

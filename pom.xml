@@ -15,33 +15,21 @@
 			<version>3.1.0</version>
 			<scope>provided</scope>
 		</dependency>
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.apache.poi</groupId> -->
-<!-- 			<artifactId>poi</artifactId> -->
-<!-- 			<version>${org.apache.poi.version}</version> -->
-<!-- 			<exclusions> -->
-<!-- 				<exclusion> -->
-<!-- 					<groupId>commons-codec</groupId> -->
-<!-- 					<artifactId>commons-codec</artifactId> -->
-<!-- 				</exclusion> -->
-<!-- 			</exclusions> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.apache.poi</groupId> -->
-<!-- 			<artifactId>poi-ooxml</artifactId> -->
-<!-- 			<version>${org.apache.poi.version}</version> -->
-<!-- 			<exclusions> -->
-<!-- 				<exclusion> -->
-<!-- 					<groupId>stax</groupId> -->
-<!-- 					<artifactId>stax-api</artifactId> -->
-<!-- 				</exclusion> -->
-<!-- 			</exclusions> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.apache.poi</groupId> -->
-<!-- 			<artifactId>poi-scratchpad</artifactId> -->
-<!-- 			<version>${org.apache.poi.version}</version> -->
-<!-- 		</dependency> -->
+ 		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>${org.apache.poi.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>${org.apache.poi.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-scratchpad</artifactId>
+			<version>${org.apache.poi.version}</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<sourceDirectory>JavaSource</sourceDirectory>

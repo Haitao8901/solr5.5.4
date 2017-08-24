@@ -134,6 +134,22 @@ public class ExtractingDocumentLoader extends ContentStreamLoader {
   @Override
   public void load(SolrQueryRequest req, SolrQueryResponse rsp,
       ContentStream stream, UpdateRequestProcessor processor) throws Exception {
+	String fileName = params.get(ExtractingParams.LITERALS_PREFIX + "filename");
+	if(fileName != null && fileName.toLowerCase().matches(".*\\.(xls|xlsx)$")){
+		InputStream inputStream = null;
+		try {
+			boolean extractOnly = params.getBool(ExtractingParams.EXTRACT_ONLY, false);
+			SolrContentHandler handler = factory.createSolrContentHandler(null, params, req.getSchema());
+			if (extractOnly == false) {
+			    templateAdd.clear();
+			    templateAdd.solrDoc = handler.newDocument(stream.getStream());
+			    processor.processAdd(templateAdd);
+			    return;
+			}
+		} finally {
+			IOUtils.closeQuietly(inputStream);
+		}
+	}
     Parser parser = null;
     String streamType = req.getParams().get(ExtractingParams.STREAM_TYPE, null);
     if (streamType != null) {
@@ -143,6 +159,7 @@ public class ExtractingDocumentLoader extends ContentStreamLoader {
     } else {
       parser = autoDetectParser;
     }
+    
     if (parser != null) {
       Metadata metadata = new Metadata();
 
