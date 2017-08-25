@@ -38,6 +38,8 @@ import java.util.regex.Pattern;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellValue;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -164,6 +166,7 @@ public class SolrContentHandler extends DefaultHandler implements ExtractingPara
 	    addLiterals();
 
 		Workbook wb = WorkbookFactory.create(stream);
+		FormulaEvaluator evaluator= wb.getCreationHelper().createFormulaEvaluator();
 		int i = wb.getNumberOfSheets() -1;
 		while(i >= 0){
 			String sheetName = wb.getSheetName(i);
@@ -171,25 +174,19 @@ public class SolrContentHandler extends DefaultHandler implements ExtractingPara
 			int rowNum = sheet.getLastRowNum() + 1;
 			for(int j =0; j < rowNum; j++){
 				Row row = sheet.getRow(j);
+				if(row == null){
+					//all line is empty
+					continue;
+				}
 				for(int k =0; k <row.getLastCellNum(); k++){
 					Cell cell = row.getCell(k);
 					String value = null;
-					if(cell == null){
-						value = "";
-					}else if(cell.getCellType() == cell.CELL_TYPE_NUMERIC){
-						value = String.valueOf(cell.getNumericCellValue());
-					}else if(cell.getCellType() == cell.CELL_TYPE_FORMULA){
-						value = cell.getCellFormula();
-					}else{
-						try{
-							value = cell.getStringCellValue();
-						}catch(NumberFormatException e){
-							if(e.getMessage().equalsIgnoreCase("For input string: \"\"")){
-								value = "";
-							}else{
-								e.printStackTrace();
-							}
-						}
+					try{
+						value = this.getCellValue(cell, evaluator);
+					}catch(Exception e){
+						System.out.println("Get value failed for " + sheetName + ":" + i + "-" + j + "-" + k );
+						System.out.println("Due to " + e.getMessage() + " just skip it.");
+						e.printStackTrace();
 					}
 					
 					if(value != null && !"".equals(value)) {
@@ -223,6 +220,49 @@ public class SolrContentHandler extends DefaultHandler implements ExtractingPara
 	    }
 	    return document;
 	  }
+  
+  @SuppressWarnings("deprecation")
+  private String getCellValue(Cell cell, FormulaEvaluator evaluator){
+	  String value = null;
+	  if(cell == null){
+		  value = "";
+	  }else if(cell.getCellType() == Cell.CELL_TYPE_NUMERIC){
+		  value = String.valueOf(cell.getNumericCellValue());
+	  }else if(cell.getCellType() == Cell.CELL_TYPE_FORMULA){
+		  CellValue cellValue = evaluator.evaluate(cell);
+		  value = getCellValue(cellValue);
+	  }else{
+		  try{
+			  value = cell.getStringCellValue();
+		  }catch(NumberFormatException e){
+			  if(e.getMessage().equalsIgnoreCase("For input string: \"\"")){
+				  value = "";
+			  }else{
+				  e.printStackTrace();
+			  }
+		  }
+	  }
+	  return value;
+  }
+  
+  @SuppressWarnings("deprecation")
+  private static String getCellValue(CellValue cell) {
+      String cellValue = null;
+      switch (cell.getCellType()) {
+      case Cell.CELL_TYPE_STRING:
+          cellValue=cell.getStringValue();
+          break;
+      case Cell.CELL_TYPE_NUMERIC:
+          cellValue=String.valueOf(cell.getNumberValue());
+          break;
+      case Cell.CELL_TYPE_BOOLEAN:
+    	  cellValue=String.valueOf(cell.getBooleanValue());
+          break;
+      default:
+          break;
+      }
+      return cellValue;
+  }
 
   /**
    * Add the per field captured content to the Solr Document.  Default implementation uses the
