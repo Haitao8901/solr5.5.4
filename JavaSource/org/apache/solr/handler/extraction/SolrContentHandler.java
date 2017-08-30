@@ -299,13 +299,13 @@ public class SolrContentHandler extends DefaultHandler implements ExtractingPara
 //    addField(strcontentFieldName, contentStr, null);
     
     if(contentStr.indexOf("<mxGraphModel") >= 0){
-    	String regs = "id=\"([^\"]+)\"[^>]+value=(\"[^\"]+\")";
+    	String regs = "id=\"([^\"]+)\"[^>]+value=\"([^\"]+)\"";
     	Pattern pattern = Pattern.compile(regs);
     	Matcher matcher = pattern.matcher(contentStr);
     	while(matcher.find()){
     		SolrInputDocument doc = new SolrInputDocument();
     		String id = matcher.group(1);
-    		String content = " " + matcher.group(2) + " \n";
+    		String content = matcher.group(2);
     		
     		doc.addField("debugid", params.get(LITERALS_PREFIX + "filepath") + "#s1.89-o" + id);
     		doc.addField("id", params.get(LITERALS_PREFIX + "id") + "|||" + id);
@@ -315,10 +315,11 @@ public class SolrContentHandler extends DefaultHandler implements ExtractingPara
     		doc.addField("filename", params.get(LITERALS_PREFIX + "filename"));
     		
     		//remove span tag
-    		content = content.replace("&lt;span&gt;", "").replace("&lt;/span&gt;", "").replace("&amp;", "&");
+    		content = processSpecialCharacter(content);
+//    		content = content.replace("&lt;span&gt;", "").replace("&lt;/span&gt;", "").replace("&amp;", "&");
     		doc.addField("detailcontent", content);//detail used to show in gui
     		
-    		content = content.replace("&lt;", "<").replace("&gt;", ">");//content used to search
+//    		content = content.replace("&lt;", "<").replace("&gt;", ">");//content used to search
     		doc.addField("content", content);
     		document.addChildDocument(doc);
     	}
@@ -330,6 +331,25 @@ public class SolrContentHandler extends DefaultHandler implements ExtractingPara
     //set debugid and detailcontent to empty
     document.addField("debugid", "");
     document.addField("detailcontent", "");
+  }
+  
+  private String processSpecialCharacter(String str){
+	  if(str == null || "".equals(str)){
+		  return str;
+	  }
+	  //transform &amp; to &
+	  //		  &lt; to <
+	  //		  &gt; to >
+	  //		  &quot; to "
+	  str = str.replace("&amp;", "&").replace("&lt;", "<").replace("&gt;", ">").replace("&nbsp;", " ").replace("&quot;", "\"");
+	  System.out.println(str);
+	  //remove html tag. currently only process div span and p
+	  str = str.replaceAll("<(div|span|p)[^>]*>", "").replaceAll("</(div|span|p)>", "");
+	  System.out.println(str);
+	  //replace <br> with empty string
+	  str = str.replaceAll("<br>", "");
+	  System.out.println(str);
+	  return str;
   }
 
   /**
