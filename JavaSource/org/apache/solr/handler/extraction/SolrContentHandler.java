@@ -314,12 +314,9 @@ public class SolrContentHandler extends DefaultHandler implements ExtractingPara
     		doc.addField("filepath", params.get(LITERALS_PREFIX + "filepath") + File.separator + "detail_text_info" + id);
     		doc.addField("filename", params.get(LITERALS_PREFIX + "filename"));
     		
-    		//remove span tag
+    		//remove rex auto added tag
     		content = processSpecialCharacter(content);
-//    		content = content.replace("&lt;span&gt;", "").replace("&lt;/span&gt;", "").replace("&amp;", "&");
     		doc.addField("detailcontent", content);//detail used to show in gui
-    		
-//    		content = content.replace("&lt;", "<").replace("&gt;", ">");//content used to search
     		doc.addField("content", content);
     		document.addChildDocument(doc);
     	}
@@ -337,15 +334,31 @@ public class SolrContentHandler extends DefaultHandler implements ExtractingPara
 	  if(str == null || "".equals(str)){
 		  return str;
 	  }
-	  //transform &amp; to &
-	  //		  &lt; to <
-	  //		  &gt; to >
-	  //		  &quot; to "
+	  // rex auto added tag is like this format 
+	  // &lt;div&gt;aaaaaaa&lt;/&gt;
+	  // user added tag is like below
+	  // &amp;lt;div&amp;gt;aaaaaaa&amp;lt;/&amp;gt;
+	  
+	  //1. we need to remove the auto added tag first
+	  //   transform   &lt; to <
+	  //		       &gt; to >
+	  //2. handle the user added tag
+	  //   transform   &amp; to &
+	  //		       &lt; to <
+	  //		       &gt; to >
+	  //		       &quot; to "
+	  //               &nbsp; to ' '
+	  //3. index the content
+	  //4. GUI will handle  user added tag to make it show correctly
+	  //   e.g. < to &lt;
+
+	  str = str.replace("&lt;", "<").replace("&gt;", ">");
+	  System.out.println(str);
+	  //remove rex auto added tag.
+	  str = str.replaceAll("<[^>]*>", "").replaceAll("</[^>]*>", "");
+	  System.out.println(str);
+	  //handle user added tag
 	  str = str.replace("&amp;", "&").replace("&lt;", "<").replace("&gt;", ">").replace("&nbsp;", " ").replace("&quot;", "\"");
-	  System.out.println(str);
-	  //remove html tag. currently only process div span and p
-	  str = str.replaceAll("<(div|span|p)[^>]*>", "").replaceAll("</(div|span|p)>", "");
-	  System.out.println(str);
 	  //replace <br> with empty string
 	  str = str.replaceAll("<br>", "");
 	  System.out.println(str);
