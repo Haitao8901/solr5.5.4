@@ -10,7 +10,9 @@ public class MyTokenizerFactory extends TokenizerFactory {
 	  private final int bufferSize;
 	  public MyTokenizerFactory(Map<String,String> args) {
 	    super(args);
-	    maxTokenLength = getInt(args, "maxTokenLength", 0);
+	    //default to 4096 which is equal to the bufferSize
+	    maxTokenLength = getInt(args, "maxTokenLength", 4096);
+	    //the content's length of tokenizer handled each time
 	    bufferSize = getInt(args, "bufferSize", 4096);
 	    if (!args.isEmpty()) {
 	      throw new IllegalArgumentException("Unknown parameters: " + args);

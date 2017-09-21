@@ -91,7 +91,7 @@ public class MyTokenizer extends Tokenizer {
 	        end += charCount;
 	        length += Character.toChars(normalize(c), buffer, length); // buffer it, normalized
 	        
-	        if (MAX_WORD_LEN > 0 && length >= MAX_WORD_LEN) // buffer overflow! make sure to check for >= surrogate pair could break == test
+	        if (length >= MAX_WORD_LEN) // buffer overflow! make sure to check for >= surrogate pair could break == test
 	          break;
 	      } else if (length > 0)             // at non-Letter w/ chars
 	        break;                           // return 'em
