@@ -78,4 +78,5 @@
   <field name="detailcontent" type="cyber_text" multiValued="false" indexed="false" stored="true"/>
   <field name="filecontent" type="string" multiValued="true" indexed="false" stored="false"/>
   <field name="debugid" type="string" multiValued="false" indexed="true" stored="true"/>
+  <field name="fileinfo" type="cyber_text" multiValued="false" indexed="false" stored="true"/>
 </schema>
