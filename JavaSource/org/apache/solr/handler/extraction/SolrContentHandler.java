@@ -164,7 +164,7 @@ public class SolrContentHandler extends DefaultHandler implements ExtractingPara
   public SolrInputDocument newDocument(InputStream stream) throws Exception {
 	    //handle the literals from the params. NOTE: This MUST be called before the others in order for literals to override other values
 	    addLiterals();
-
+	    String[] fileInfos = params.getParams(LITERALS_PREFIX + "fileinfo");
 		Workbook wb = WorkbookFactory.create(stream);
 		FormulaEvaluator evaluator= wb.getCreationHelper().createFormulaEvaluator();
 		int i = wb.getNumberOfSheets() -1;
@@ -202,6 +202,7 @@ public class SolrContentHandler extends DefaultHandler implements ExtractingPara
 						doc.addField("app", params.get(LITERALS_PREFIX + "app"));
 						doc.addField("filepath", params.get(LITERALS_PREFIX + "filepath") + File.separator + "detail_text_info" + id);
 						doc.addField("filename", params.get(LITERALS_PREFIX + "filename"));
+						doc.addField("fileinfo", fileInfos!=null?fileInfos[0]:"");
 						
 						doc.addField("detailcontent", value);//detail used to show in gui
 						doc.addField("content", value);
@@ -297,7 +298,7 @@ public class SolrContentHandler extends DefaultHandler implements ExtractingPara
         }
       }
 //    addField(strcontentFieldName, contentStr, null);
-    
+    String[] fileInfos = params.getParams(LITERALS_PREFIX + "fileinfo");
     if(contentStr.indexOf("<mxGraphModel") >= 0){
     	String regs = "id=\"([^\"]+)\"[^>]+value=\"([^\"]+)\"";
     	Pattern pattern = Pattern.compile(regs);
@@ -313,6 +314,7 @@ public class SolrContentHandler extends DefaultHandler implements ExtractingPara
     		doc.addField("app", params.get(LITERALS_PREFIX + "app"));
     		doc.addField("filepath", params.get(LITERALS_PREFIX + "filepath") + File.separator + "detail_text_info" + id);
     		doc.addField("filename", params.get(LITERALS_PREFIX + "filename"));
+    		doc.addField("fileinfo", fileInfos!=null?fileInfos[0]:"");
     		
     		//remove rex auto added tag
     		content = processSpecialCharacter(content);
